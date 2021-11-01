@@ -8,19 +8,17 @@ const router = Router();
 
 router.route('/url')
 .post(async(req: Request, res: Response): Promise<Router.Response<any, Record<string, any>> | undefined> => {
-    if (!req.body.url) return res.send('URL is required');
-
     try {
         const exists: IShortUrl | null = await ShortUrl.findOne({url: req.body.url});
-        if (exists) return res.status(200).send('URL already exists');
+        if (exists) return res.status(200).send(exists);
         else {
             const shortURL: string = sha256Short(req.body.url);
-            await ShortUrl.create({
+            const newUrl = await ShortUrl.create({
                 shortUrl: shortURL,
                 url: req.body.url
-            }).then(() => {
-                return res.status(200).send(`Successfully created short URL`);
             });
+
+            return res.send(newUrl);
         }
         
     } catch(e) {
